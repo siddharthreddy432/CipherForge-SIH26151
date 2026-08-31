@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+@theme {
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-sans: "Inter", sans-serif;
+  --font-heading: "Space Grotesk", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+  
+  --color-brand-bg: #05070a;
+  --color-brand-bg-sec: #07090d;
+  --color-brand-border: #14171d;
+  --color-brand-text: #f5f5f5;
+  --color-brand-muted: #8c8c8c;
+  --color-brand-accent: #b91c1c;
+  --color-brand-glow: #ea580c;
+}
+
+@layer base {
+  body {
+    @apply bg-brand-bg text-brand-text font-sans antialiased selection:bg-brand-accent/30;
+  }
+}
+
+@layer utilities {
+  .btn-motion {
+    @apply hover:-translate-y-[1px] active:translate-y-0 transition-all duration-200;
+    @apply ease-smooth;
+  }
+  .row-motion {
+    @apply transition-colors duration-200;
+    @apply ease-smooth;
+  }
+  
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-fade-up {
+      animation: fade-up 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .stagger-1 { animation-delay: 50ms; }
+    .stagger-2 { animation-delay: 100ms; }
+    .stagger-3 { animation-delay: 150ms; }
+    .stagger-4 { animation-delay: 200ms; }
+    .stagger-5 { animation-delay: 250ms; }
+    .stagger-6 { animation-delay: 300ms; }
+  }
+
+  .ease-smooth {
+    @apply ease-smooth;
+  }
+  .bg-grid {
+    background-size: 48px 48px;
+    background-image: 
+      linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  }
+
+  .bg-vignette {
+    background: radial-gradient(circle at center, transparent 20%, rgba(5, 7, 10, 0.95) 100%);
+  }
+  
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes slow-drift {
+      0% { transform: translate(0, 0); }
+      33% { transform: translate(-1%, 1.5%); }
+      66% { transform: translate(1%, -1%); }
+      100% { transform: translate(0, 0); }
+    }
+    .animate-slow-drift {
+      animation: slow-drift 40s ease-in-out infinite;
+    }
+    @keyframes slideInRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
