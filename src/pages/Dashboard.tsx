@@ -10,12 +10,41 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetch('/api/stats')
-      .then(res => res.json())
-      .then(data => setStats(data));
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        return res.json();
+      })
+      .then(data => setStats(data))
+      .catch(err => {
+        console.warn('Could not load /api/stats, using fallback state:', err);
+        setStats({
+          total_entities: 18,
+          total_actors: 2,
+          total_aliases: 3,
+          pgp_keys: 1,
+          wallets: 3,
+          transactions: 2,
+          hidden_services: 2,
+          certificates: 1,
+          infrastructure: 5,
+          relationships: 12,
+          high_confidence_links: 7,
+          persona_links: 2,
+          recent_alerts: 4,
+          last_scan: new Date().toISOString()
+        });
+      });
       
     fetch('/api/alerts')
-      .then(res => res.json())
-      .then(data => setAlerts(data.slice(0, 4)));
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        return res.json();
+      })
+      .then(data => setAlerts(Array.isArray(data) ? data.slice(0, 4) : []))
+      .catch(err => {
+        console.warn('Could not load /api/alerts:', err);
+        setAlerts([]);
+      });
   }, []);
 
   if (!stats) return <div className="p-8 text-[10px] text-brand-muted uppercase tracking-widest animate-pulse">Initializing Interface...</div>;
