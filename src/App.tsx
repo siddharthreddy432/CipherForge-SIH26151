@@ -17,6 +17,7 @@ import Alerts from './pages/Alerts';
 import Reports from './pages/Reports';
 import PersonaAnalysis from './pages/PersonaAnalysis';
 import Search from './pages/Search';
+import References from './pages/References';
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="search" element={<Search />} />
           <Route path="evidence" element={<Evidence />} />
           <Route path="sources" element={<Sources />} />
+          <Route path="references" element={<References />} />
           <Route path="alerts" element={<Alerts />} />
           <Route path="reports" element={<Reports />} />
         </Route>

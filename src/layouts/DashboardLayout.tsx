@@ -95,7 +95,8 @@ export default function DashboardLayout() {
 
   const evidenceItems = [
     { to: '/evidence', label: 'Evidence' },
-    { to: '/sources', label: 'Sources' }
+    { to: '/sources', label: 'Sources' },
+    { to: '/references', label: 'References' }
   ];
 
   const operationsItems = [
