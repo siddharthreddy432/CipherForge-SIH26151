@@ -257,6 +257,126 @@ async function searchThreatFox(ioc: string) {
   }
 }
 
+  let threatFoxStatusCache: { data: any; cachedAt: number } | null = null;
+
+  app.get('/api/threatfox/status', async (req, res) => {
+    const authKey = process.env.THREATFOX_AUTH_KEY;
+    if (!authKey) {
+      return res.json({
+        source: 'ThreatFox',
+        sourceType: 'EXTERNAL_CTI',
+        status: 'NOT CONFIGURED',
+        query: 'get_iocs',
+        days: 1,
+        queryStatus: 'missing_auth_key',
+        recordCount: 0,
+        retrievedAt: new Date().toISOString()
+      });
+    }
+
+    const now = Date.now();
+    if (req.query.refresh !== 'true' && threatFoxStatusCache && (now - threatFoxStatusCache.cachedAt < 15 * 1000)) {
+      return res.json(threatFoxStatusCache.data);
+    }
+
+    try {
+      const response = await fetch('https://threatfox-api.abuse.ch/api/v1/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Auth-Key': authKey
+        },
+        body: JSON.stringify({
+          query: 'get_iocs',
+          days: 1
+        }),
+        signal: AbortSignal.timeout(10000)
+      });
+
+      if (!response.ok) {
+        return res.json({
+          source: 'ThreatFox',
+          sourceType: 'EXTERNAL_CTI',
+          status: 'UNAVAILABLE',
+          query: 'get_iocs',
+          days: 1,
+          queryStatus: `http_${response.status}`,
+          recordCount: 0,
+          retrievedAt: new Date().toISOString()
+        });
+      }
+
+      const json = await response.json();
+      const retrievedAt = new Date().toISOString();
+
+      if (json.query_status === 'unknown_auth_key' || json.query_status === 'invalid_auth_key') {
+        return res.json({
+          source: 'ThreatFox',
+          sourceType: 'EXTERNAL_CTI',
+          status: 'AUTHENTICATION ERROR',
+          query: 'get_iocs',
+          days: 1,
+          queryStatus: json.query_status,
+          recordCount: 0,
+          retrievedAt
+        });
+      }
+
+      if (json.query_status === 'no_result') {
+        const payload = {
+          source: 'ThreatFox',
+          sourceType: 'EXTERNAL_CTI',
+          status: 'CONNECTED',
+          query: 'get_iocs',
+          days: 1,
+          queryStatus: 'no_result',
+          recordCount: 0,
+          retrievedAt
+        };
+        threatFoxStatusCache = { data: payload, cachedAt: Date.now() };
+        return res.json(payload);
+      }
+
+      if (json.query_status === 'ok') {
+        const count = Array.isArray(json.data) ? json.data.length : 0;
+        const payload = {
+          source: 'ThreatFox',
+          sourceType: 'EXTERNAL_CTI',
+          status: 'CONNECTED',
+          query: 'get_iocs',
+          days: 1,
+          queryStatus: 'ok',
+          recordCount: count,
+          retrievedAt
+        };
+        threatFoxStatusCache = { data: payload, cachedAt: Date.now() };
+        return res.json(payload);
+      }
+
+      return res.json({
+        source: 'ThreatFox',
+        sourceType: 'EXTERNAL_CTI',
+        status: 'UNAVAILABLE',
+        query: 'get_iocs',
+        days: 1,
+        queryStatus: json.query_status || 'unknown',
+        recordCount: 0,
+        retrievedAt
+      });
+    } catch (e: any) {
+      return res.json({
+        source: 'ThreatFox',
+        sourceType: 'EXTERNAL_CTI',
+        status: 'UNAVAILABLE',
+        query: 'get_iocs',
+        days: 1,
+        queryStatus: 'network_failure',
+        recordCount: 0,
+        retrievedAt: new Date().toISOString()
+      });
+    }
+  });
+
   app.post('/api/investigate', async (req, res) => {
     const { artifact } = req.body;
     if (!artifact) return res.status(400).json({ error: 'Artifact is required' });

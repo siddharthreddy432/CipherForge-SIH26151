@@ -1,10 +1,24 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Upload, Database, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { Upload, Database, CheckCircle2, ShieldAlert, Activity } from 'lucide-react';
+
+interface ThreatFoxStatus {
+  source: string;
+  sourceType: string;
+  status: string;
+  query: string;
+  days: number;
+  queryStatus: string;
+  recordCount: number;
+  retrievedAt: string;
+}
 
 export default function Sources() {
   const [sources, setSources] = useState<any[]>([]);
   const [uploadStatus, setUploadStatus] = useState<any | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [threatFoxStatus, setThreatFoxStatus] = useState<ThreatFoxStatus | null>(null);
+  const [isTestingThreatFox, setIsTestingThreatFox] = useState(false);
+  const [threatFoxTestError, setThreatFoxTestError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchSources = async () => {
@@ -17,8 +31,23 @@ export default function Sources() {
     }
   };
 
+  const testThreatFoxConnection = async (refresh: boolean = true) => {
+    setIsTestingThreatFox(true);
+    setThreatFoxTestError(null);
+    try {
+      const res = await fetch(`/api/threatfox/status${refresh ? '?refresh=true' : ''}`);
+      const data = await res.json();
+      setThreatFoxStatus(data);
+    } catch (err: any) {
+      setThreatFoxTestError(err.message || 'Connection test failed');
+    } finally {
+      setIsTestingThreatFox(false);
+    }
+  };
+
   useEffect(() => {
     fetchSources();
+    testThreatFoxConnection(false);
   }, []);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -147,6 +176,120 @@ export default function Sources() {
            <p className="text-[11px] uppercase tracking-[0.2em] font-semibold text-brand-muted mb-3">ACTIVE SOURCES</p>
            <p className="text-5xl font-heading text-brand-text">{sources.filter(s => s.status === 'AVAILABLE').length}</p>
         </div>
+      </div>
+
+      {/* ThreatFox Live Connection Test */}
+      <div className="border border-brand-border bg-[#070809] p-8 relative overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-brand-border pb-6 mb-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-brand-muted">
+                EXTERNAL CTI VERIFICATION
+              </span>
+              {threatFoxStatus && (
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[9px] uppercase tracking-widest font-mono border border-brand-border">
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${
+                      threatFoxStatus.status === 'CONNECTED'
+                        ? 'bg-emerald-500 animate-pulse'
+                        : threatFoxStatus.status === 'NOT CONFIGURED'
+                        ? 'bg-amber-500'
+                        : 'bg-brand-accent'
+                    }`}
+                  ></span>
+                  <span
+                    className={
+                      threatFoxStatus.status === 'CONNECTED'
+                        ? 'text-emerald-400 font-semibold'
+                        : threatFoxStatus.status === 'NOT CONFIGURED'
+                        ? 'text-amber-400 font-semibold'
+                        : 'text-brand-accent font-semibold'
+                    }
+                  >
+                    {threatFoxStatus.status}
+                  </span>
+                </span>
+              )}
+            </div>
+            <h3 className="text-2xl font-heading font-semibold text-brand-text">
+              ThreatFox Live Data Connection Test
+            </h3>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => testThreatFoxConnection(true)}
+            disabled={isTestingThreatFox}
+            className={`inline-flex items-center gap-2 px-6 py-3 border border-brand-border hover:border-brand-text text-[11px] font-semibold tracking-widest uppercase text-brand-text transition-colors bg-[#0A0C0E] cursor-pointer ${
+              isTestingThreatFox ? 'opacity-50 pointer-events-none' : ''
+            }`}
+          >
+            <Activity className={`w-3.5 h-3.5 ${isTestingThreatFox ? 'animate-spin' : 'text-brand-glow'}`} />
+            {isTestingThreatFox ? 'TESTING LIVE FEED...' : 'TEST LIVE CONNECTION'}
+          </button>
+        </div>
+
+        {threatFoxTestError && (
+          <div className="mb-6 p-4 border border-brand-accent/40 bg-brand-accent/5 text-brand-accent text-xs font-mono">
+            {threatFoxTestError}
+          </div>
+        )}
+
+        {threatFoxStatus ? (
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-6">
+              <div>
+                <p className="text-[10px] text-brand-muted tracking-widest uppercase mb-1">Source</p>
+                <p className="text-lg font-heading font-semibold text-brand-text">{threatFoxStatus.source}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-brand-muted tracking-widest uppercase mb-1">Source Type</p>
+                <p className="text-lg font-heading font-semibold text-brand-text">{threatFoxStatus.sourceType}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-brand-muted tracking-widest uppercase mb-1">Status</p>
+                <p
+                  className={`text-lg font-heading font-semibold ${
+                    threatFoxStatus.status === 'CONNECTED' ? 'text-emerald-400' : 'text-brand-accent'
+                  }`}
+                >
+                  {threatFoxStatus.status}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] text-brand-muted tracking-widest uppercase mb-1">Query</p>
+                <p className="text-lg font-heading font-semibold text-brand-text">{threatFoxStatus.query}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-brand-muted tracking-widest uppercase mb-1">Timeframe</p>
+                <p className="text-lg font-heading font-semibold text-brand-text">{threatFoxStatus.days} Day</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-brand-muted tracking-widest uppercase mb-1">Query Status</p>
+                <p className="text-lg font-heading font-semibold text-brand-text">{threatFoxStatus.queryStatus}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-brand-muted tracking-widest uppercase mb-1">Record Count</p>
+                <p className="text-lg font-heading font-semibold text-brand-text">
+                  {threatFoxStatus.recordCount.toLocaleString()}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-4 border-t border-brand-border/60 text-[10px] text-brand-muted font-mono">
+              <span>
+                RETRIEVED AT: {new Date(threatFoxStatus.retrievedAt).toLocaleString()} ({threatFoxStatus.retrievedAt})
+              </span>
+              <span className="tracking-widest uppercase text-brand-muted/70">
+                READ-ONLY VERIFICATION · SERVER-SIDE AUTHENTICATION PROTECTED
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="py-8 text-center text-brand-muted text-xs font-mono tracking-widest">
+            {isTestingThreatFox ? 'CONTACTING THREATFOX API...' : 'INITIALIZING THREATFOX LIVE STATUS...'}
+          </div>
+        )}
       </div>
 
       {/* Source Table */}
