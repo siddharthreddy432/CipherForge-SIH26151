@@ -16,12 +16,69 @@
 }
 
 @layer base {
+  html {
+    color-scheme: dark;
+  }
+
   html, body {
     @apply bg-brand-bg text-brand-text font-sans antialiased selection:bg-brand-accent/30;
     scroll-behavior: smooth;
     overscroll-behavior-y: none;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scrollbar-width: thin;
+    scrollbar-color: #1e232d #05070a;
+  }
+
+  /* Universal Custom Dark Theme Scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #1e232d #05070a;
+  }
+
+  /* WebKit & Chromium Custom Scrollbar (Chrome, Edge, Safari, Brave, Opera) */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #05070a;
+    border-left: 1px solid #14171f;
+  }
+
+  ::-webkit-scrollbar-track:horizontal {
+    border-left: none;
+    border-top: 1px solid #14171f;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #1e232d;
+    border-radius: 2px;
+    border: 1px solid #2a313d;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #b91c1c; /* Brand accent red on hover */
+    border-color: #ef4444;
+    box-shadow: 0 0 8px rgba(185, 28, 28, 0.45);
+  }
+
+  ::-webkit-scrollbar-thumb:active {
+    background: #dc2626;
+  }
+
+  /* Remove default OS stepper buttons/arrows */
+  ::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
+  /* Corner intersection */
+  ::-webkit-scrollbar-corner {
+    background: #05070a;
   }
 }
 

@@ -101,7 +101,8 @@ export default function DashboardLayout() {
 
   const operationsItems = [
     { to: '/alerts', label: 'Alerts' },
-    { to: '/reports', label: 'Reports' }
+    { to: '/reports', label: 'Reports' },
+    { to: '/faq', label: 'Architecture FAQ' }
   ];
 
   const renderNavGroup = (title: string, items: { to: string; label: string }[]) => (
@@ -249,7 +250,7 @@ export default function DashboardLayout() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto relative bg-transparent hide-scrollbar overscroll-contain" style={{ WebkitOverflowScrolling: 'touch', willChange: 'scroll-position' }}>
+        <main className="flex-1 overflow-y-auto relative bg-transparent overscroll-contain" style={{ WebkitOverflowScrolling: 'touch', willChange: 'scroll-position' }}>
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}

@@ -18,6 +18,7 @@ import Reports from './pages/Reports';
 import PersonaAnalysis from './pages/PersonaAnalysis';
 import Search from './pages/Search';
 import References from './pages/References';
+import FAQ from './pages/FAQ';
 
 export default function App() {
   return (
@@ -38,6 +39,7 @@ export default function App() {
           <Route path="references" element={<References />} />
           <Route path="alerts" element={<Alerts />} />
           <Route path="reports" element={<Reports />} />
+          <Route path="faq" element={<FAQ />} />
         </Route>
       </Routes>
     </Router>
