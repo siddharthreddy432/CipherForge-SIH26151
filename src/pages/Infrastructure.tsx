@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Server, Globe, Shield, Lock, AlertTriangle, Network } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { IntelligenceService } from '../services/intelligenceService';
 
 export default function Infrastructure() {
   const [data, setData] = useState<any[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/api/infrastructure')
-      .then(res => res.json())
+    IntelligenceService.getInfrastructure()
       .then(setData)
       .catch(console.error);
   }, []);

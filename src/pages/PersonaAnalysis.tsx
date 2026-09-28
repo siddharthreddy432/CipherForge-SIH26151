@@ -2,6 +2,7 @@ import { NumberCounter } from "../components/NumberCounter";
 import React, { useState } from 'react';
 import { User, Fingerprint, Activity, FileText, ArrowRight, ShieldAlert, Network, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { IntelligenceService } from '../services/intelligenceService';
 
 export default function PersonaAnalysis() {
   const [actorValue, setActorValue] = useState('ShadowByte');
@@ -14,16 +15,11 @@ export default function PersonaAnalysis() {
     setIsAnalyzing(true);
     setResult(null);
     try {
-      const res = await fetch('/api/persona', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ actorValue, candidateValue })
-      });
-      const data = await res.json();
+      const data = await IntelligenceService.analyzePersona(actorValue, candidateValue);
       setTimeout(() => {
         setResult(data);
         setIsAnalyzing(false);
-      }, 1500); // simulate analysis delay
+      }, 1000);
     } catch (e) {
       console.error(e);
       setIsAnalyzing(false);

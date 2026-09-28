@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, Bell, CheckCircle, Clock } from 'lucide-react';
+import { IntelligenceService } from '../services/intelligenceService';
 
 export default function Alerts() {
   const [alerts, setAlerts] = useState<any[]>([]);
@@ -13,21 +14,17 @@ export default function Alerts() {
 
   const fetchAlerts = () => {
     setLoading(true);
-    fetch('/api/alerts')
-      .then(res => res.json())
+    IntelligenceService.getAlerts()
       .then(data => {
         setAlerts(data);
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
   };
 
   const updateAlertStatus = (id: string, status: string) => {
-    fetch(`/api/alerts/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status })
-    })
-    .then(() => fetchAlerts());
+    IntelligenceService.patchAlert(id, status)
+      .then(() => fetchAlerts());
   };
 
   const unreadCount = alerts.filter(a => !a.read).length;

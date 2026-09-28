@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Search, ShieldAlert, Network, ArrowLeft, Link as LinkIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useReducedMotion } from 'motion/react';
+import { IntelligenceService } from '../services/intelligenceService';
 
 export default function Actors() {
   const [actors, setActors] = useState<any[]>([]);
@@ -18,8 +19,7 @@ export default function Actors() {
 
   const fetchActors = async () => {
     try {
-      const res = await fetch('/api/actors');
-      const data = await res.json();
+      const data = await IntelligenceService.getActors();
       setActors(data);
       setFilteredActors(data);
     } catch (e) {
@@ -29,8 +29,7 @@ export default function Actors() {
 
   const fetchActorDetails = async (id: string) => {
     try {
-      const res = await fetch(`/api/actors/${id}`);
-      const data = await res.json();
+      const data = await IntelligenceService.getActorById(id);
       setActorDetails(data);
     } catch (e) {
       console.error(e);

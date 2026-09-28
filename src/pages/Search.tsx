@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useReducedMotion } from 'motion/react';
 import { Shield, Network, Bitcoin, Globe, Fingerprint } from 'lucide-react';
+import { IntelligenceService } from '../services/intelligenceService';
 
 export default function Search() {
   const [searchParams] = useSearchParams();
@@ -14,8 +15,7 @@ export default function Search() {
   useEffect(() => {
     if (query) {
       setLoading(true);
-      fetch(`/api/search?q=${encodeURIComponent(query)}`)
-        .then(res => res.json())
+      IntelligenceService.search(query)
         .then(data => setResults(data))
         .finally(() => setLoading(false));
     }

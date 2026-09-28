@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useReducedMotion } from 'motion/react';
 import { Network, Search, Globe, Shield, Bitcoin, Fingerprint, Download, ArrowDown, Database, CheckCircle2 } from 'lucide-react';
+import { IntelligenceService } from '../services/intelligenceService';
 
 export default function Investigate() {
   const location = useLocation();
@@ -49,28 +50,7 @@ export default function Investigate() {
     }
     
     try {
-      const res = await fetch('/api/investigate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ artifact: artifact.trim() })
-      });
-      
-      const rawText = await res.text();
-      let data: any = null;
-      try {
-        data = JSON.parse(rawText);
-      } catch (parseErr) {
-        throw new Error(
-          res.ok 
-            ? 'Invalid response format from server.' 
-            : `Server error (${res.status}): ${rawText.slice(0, 120)}`
-        );
-      }
-
-      if (!res.ok) {
-        throw new Error(data?.error || `Investigation query failed with status ${res.status}`);
-      }
-      
+      const data = await IntelligenceService.investigate(artifact);
       setResult(data);
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred during investigation');

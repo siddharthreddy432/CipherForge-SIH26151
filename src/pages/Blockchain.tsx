@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Bitcoin, Activity, Shield, Network, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { IntelligenceService } from '../services/intelligenceService';
 
 export default function Blockchain() {
   const [data, setData] = useState<{wallets: any[], transactions: any[]}>({ wallets: [], transactions: [] });
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/api/blockchain')
-      .then(res => res.json())
+    IntelligenceService.getBlockchain()
       .then(setData)
       .catch(console.error);
   }, []);

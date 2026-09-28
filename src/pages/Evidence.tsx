@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Upload, ArrowRight } from 'lucide-react';
-
 import { useNavigate } from 'react-router-dom';
+import { IntelligenceService } from '../services/intelligenceService';
 
 export default function Evidence() {
   const navigate = useNavigate();
@@ -9,9 +9,9 @@ export default function Evidence() {
   const [uploadStatus, setUploadStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 
   useEffect(() => {
-    fetch('/api/evidence')
-      .then(res => res.json())
-      .then(data => setEvidence(data));
+    IntelligenceService.getEvidence()
+      .then(data => setEvidence(data))
+      .catch(console.error);
   }, []);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {

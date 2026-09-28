@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import * as d3 from 'd3';
 import { Shield, Fingerprint, Globe, Bitcoin, Network, ArrowRight } from 'lucide-react';
+import { IntelligenceService } from '../services/intelligenceService';
 
 export default function NetworkGraph() {
   const location = useLocation();
@@ -21,18 +22,22 @@ export default function NetworkGraph() {
 
   useEffect(() => {
     if (seed) {
-       fetch(`/api/export/json?seed=${encodeURIComponent(seed)}`)
-         .then(res => res.json())
-         .then(data => {
-            setAllData({ entities: data.entities, relationships: data.relationships });
-         });
+      IntelligenceService.investigate(seed).then(data => {
+        setAllData({ entities: data.entities || [], relationships: data.relationships || [] });
+      }).catch(async () => {
+        const [entities, relationships] = await Promise.all([
+          IntelligenceService.getEntities(),
+          IntelligenceService.getRelationships()
+        ]);
+        setAllData({ entities, relationships });
+      });
     } else {
-       Promise.all([
-         fetch('/api/entities').then(res => res.json()),
-         fetch('/api/relationships').then(res => res.json())
-       ]).then(([entities, relationships]) => {
-         setAllData({ entities, relationships });
-       });
+      Promise.all([
+        IntelligenceService.getEntities(),
+        IntelligenceService.getRelationships()
+      ]).then(([entities, relationships]) => {
+        setAllData({ entities, relationships });
+      });
     }
   }, [seed]);
 

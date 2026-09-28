@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText, Download, Shield } from 'lucide-react';
+import { IntelligenceService } from '../services/intelligenceService';
 
 export default function Reports() {
   const [reports, setReports] = useState<any[]>([]);
@@ -8,12 +9,12 @@ export default function Reports() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/api/reports')
-      .then(res => res.json())
+    IntelligenceService.getReports()
       .then(data => {
         setReports(data);
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   const handleExport = (format: string, seed: string) => {

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Upload, Database, CheckCircle2, ShieldAlert, Activity } from 'lucide-react';
+import { IntelligenceService } from '../services/intelligenceService';
 
 interface ThreatFoxStatus {
   source: string;
@@ -23,8 +24,7 @@ export default function Sources() {
 
   const fetchSources = async () => {
     try {
-      const res = await fetch('/api/sources');
-      const data = await res.json();
+      const data = await IntelligenceService.getSources();
       setSources(data);
     } catch (e) {
       console.error(e);
@@ -35,8 +35,7 @@ export default function Sources() {
     setIsTestingThreatFox(true);
     setThreatFoxTestError(null);
     try {
-      const res = await fetch(`/api/threatfox/status${refresh ? '?refresh=true' : ''}`);
-      const data = await res.json();
+      const data = await IntelligenceService.getThreatFoxStatus();
       setThreatFoxStatus(data);
     } catch (err: any) {
       setThreatFoxTestError(err.message || 'Connection test failed');
