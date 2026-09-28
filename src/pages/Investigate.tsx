@@ -52,15 +52,28 @@ export default function Investigate() {
       const res = await fetch('/api/investigate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ artifact })
+        body: JSON.stringify({ artifact: artifact.trim() })
       });
       
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const rawText = await res.text();
+      let data: any = null;
+      try {
+        data = JSON.parse(rawText);
+      } catch (parseErr) {
+        throw new Error(
+          res.ok 
+            ? 'Invalid response format from server.' 
+            : `Server error (${res.status}): ${rawText.slice(0, 120)}`
+        );
+      }
+
+      if (!res.ok) {
+        throw new Error(data?.error || `Investigation query failed with status ${res.status}`);
+      }
       
       setResult(data);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'An unexpected error occurred during investigation');
     } finally {
       setLoading(false);
       setPipelineStep(-1);

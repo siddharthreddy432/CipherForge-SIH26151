@@ -12,7 +12,23 @@ export function createApp() {
   const app = express();
 
   app.use(cors());
-  app.use(express.json());
+
+  // Vercel serverless compatible body parser:
+  // If Vercel already consumed or pre-parsed the body, do not hang waiting on the stream
+  app.use((req, res, next) => {
+    if (req.body && typeof req.body === 'object') {
+      return next();
+    }
+    if (typeof req.body === 'string') {
+      try {
+        req.body = JSON.parse(req.body);
+        return next();
+      } catch (e) {
+        // continue to express.json
+      }
+    }
+    express.json()(req, res, next);
+  });
 
   // Initialize demo data
   initDemoData();
@@ -205,8 +221,11 @@ export function createApp() {
 
   const THREATFOX_CACHE = new Map<string, { data: any, retrievedAt: string }>();
 
+  const getThreatFoxAuthKey = () => process.env.THREATFOX_AUTH_KEY || process.env.THREATFOX_AUTH_KEY_BAK;
+
   async function searchThreatFox(ioc: string) {
-    if (!process.env.THREATFOX_AUTH_KEY) {
+    const authKey = getThreatFoxAuthKey();
+    if (!authKey) {
       return { status: 'NOT CONFIGURED' };
     }
     
@@ -222,7 +241,7 @@ export function createApp() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Auth-Key': process.env.THREATFOX_AUTH_KEY
+          'Auth-Key': authKey
         },
         body: JSON.stringify({
           query: 'search_ioc',
@@ -257,7 +276,7 @@ export function createApp() {
   let threatFoxStatusCache: { data: any; cachedAt: number } | null = null;
 
   router.get('/threatfox/status', async (req, res) => {
-    const authKey = process.env.THREATFOX_AUTH_KEY;
+    const authKey = getThreatFoxAuthKey();
     if (!authKey) {
       return res.json({
         source: 'ThreatFox',
@@ -375,8 +394,10 @@ export function createApp() {
   });
 
   router.post('/investigate', async (req, res) => {
-    const { artifact } = req.body;
-    if (!artifact) return res.status(400).json({ error: 'Artifact is required' });
+    try {
+      const body = req.body || {};
+      const artifact = typeof body.artifact === 'string' ? body.artifact.trim() : '';
+      if (!artifact) return res.status(400).json({ error: 'Artifact is required' });
 
     let matchingEntity = Array.from(db.entities.values()).find(e => 
       e.value.toLowerCase() === artifact.toLowerCase() || 
@@ -604,6 +625,10 @@ export function createApp() {
       summary: `Found ${relatedEntities.length} related entities and ${relatedRelationships.length} relationships for artifact ${artifact}.`,
       externalIntelligence
     });
+    } catch (err: any) {
+      console.error('Investigate error:', err);
+      return res.status(500).json({ error: err.message || 'Investigation error occurred' });
+    }
   });
 
   router.post('/ingest', upload.single('file'), (req, res) => {

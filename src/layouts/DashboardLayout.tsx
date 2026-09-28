@@ -10,13 +10,19 @@ const EnvironmentBackground = () => {
   const shouldReduceMotion = useReducedMotion();
   
   return (
-    <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden bg-[#05070A]">
+    <div 
+      className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden bg-[#05070A]"
+      style={{ transform: 'translateZ(0)', contain: 'strict' }}
+    >
       {/* Grid */}
-      <div className="absolute inset-0 bg-grid opacity-100"></div>
+      <div className="absolute inset-0 bg-grid opacity-80"></div>
       
       {/* Decorative Network Topology */}
       {!isGraph && (
-        <svg className={`absolute inset-0 w-full h-full opacity-10 ${shouldReduceMotion ? '' : 'animate-slow-drift'}`} xmlns="http://www.w3.org/2000/svg" style={{ animationDelay: '-5s' }}>
+        <svg 
+          className="absolute inset-0 w-full h-full opacity-10" 
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <g stroke="#ffffff" strokeWidth="0.5" fill="none">
             <circle cx="15%" cy="25%" r="2" fill="#ffffff" />
             <circle cx="35%" cy="15%" r="2" fill="#ffffff" />
@@ -40,10 +46,15 @@ const EnvironmentBackground = () => {
         </svg>
       )}
 
-      {/* Radial Lights */}
-      <div className={`absolute -top-[20%] -right-[10%] w-[60%] h-[60%] rounded-full bg-brand-accent/10 blur-[120px] mix-blend-screen ${shouldReduceMotion ? '' : 'animate-slow-drift'}`}></div>
-      <div className={`absolute -bottom-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-[#f59e0b]/10 blur-[120px] mix-blend-screen ${shouldReduceMotion ? '' : 'animate-slow-drift'}`} style={{ animationDelay: '-20s' }}></div>
-      <div className="absolute top-[30%] left-[30%] w-[40%] h-[40%] rounded-full bg-[#07090D]/50 blur-[100px] mix-blend-normal"></div>
+      {/* GPU-efficient Ambient Gradients (No heavy runtime blur filters) */}
+      <div 
+        className="absolute -top-[10%] -right-[10%] w-[60%] h-[60%] rounded-full opacity-60"
+        style={{ background: 'radial-gradient(circle, rgba(185, 28, 28, 0.12) 0%, transparent 70%)' }}
+      ></div>
+      <div 
+        className="absolute -bottom-[10%] -left-[10%] w-[50%] h-[50%] rounded-full opacity-50"
+        style={{ background: 'radial-gradient(circle, rgba(245, 158, 11, 0.08) 0%, transparent 70%)' }}
+      ></div>
       
       {/* Vignette */}
       <div className="absolute inset-0 bg-vignette opacity-80"></div>
@@ -197,10 +208,10 @@ export default function DashboardLayout() {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-[#07090D]/40 backdrop-blur-[2px]">
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-[#07090D]">
         
         {/* Top Header */}
-        <header className="h-20 border-b border-[#1a1f26]/40 flex items-center justify-between px-6 lg:px-10 shrink-0 bg-[#0A0C0E]/60 backdrop-blur-md relative z-40">
+        <header className="h-20 border-b border-[#1a1f26]/40 flex items-center justify-between px-6 lg:px-10 shrink-0 bg-[#0A0C0E] relative z-40">
           <div className="flex items-center gap-4">
             <button 
               className="lg:hidden p-2 -ml-2 text-brand-muted hover:text-brand-text transition-all duration-200 ease-smooth"
@@ -237,7 +248,7 @@ export default function DashboardLayout() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto relative bg-transparent hide-scrollbar">
+        <main className="flex-1 overflow-y-auto relative bg-transparent hide-scrollbar overscroll-contain" style={{ WebkitOverflowScrolling: 'touch', willChange: 'scroll-position' }}>
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}

@@ -16,8 +16,12 @@
 }
 
 @layer base {
-  body {
+  html, body {
     @apply bg-brand-bg text-brand-text font-sans antialiased selection:bg-brand-accent/30;
+    scroll-behavior: smooth;
+    overscroll-behavior-y: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
