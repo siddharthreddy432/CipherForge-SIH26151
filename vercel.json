@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/export/:format",
+      "destination": "/api/export"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }

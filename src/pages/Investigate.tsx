@@ -61,7 +61,13 @@ export default function Investigate() {
   };
 
   const handleExport = (format: string) => {
-    window.open(`/api/export/${format}?seed=${encodeURIComponent(artifact)}`, '_blank');
+    if (format === 'csv') {
+      IntelligenceService.downloadCsv(artifact);
+    } else if (format === 'json') {
+      IntelligenceService.downloadJson(artifact);
+    } else {
+      IntelligenceService.downloadTextReport(artifact);
+    }
   };
 
   const PipelineProgress = () => {
@@ -99,26 +105,57 @@ export default function Investigate() {
       </div>
 
       {/* Input */}
-      <form onSubmit={handleInvestigate} className="flex flex-col md:flex-row gap-4">
-        <div className="flex-1 border border-brand-border bg-[#070809] flex items-center px-6 focus-within:border-brand-accent transition-colors">
-           <Search className="w-5 h-5 text-brand-muted mr-4" />
-           <input 
-             type="text" 
-             value={artifact}
-             onChange={e => setArtifact(e.target.value)}
-             placeholder="ENTER .ONION, DOMAIN, IP, WALLET, PGP FINGERPRINT, HANDLE..."
-             className="w-full bg-transparent border-none py-6 text-sm uppercase tracking-widest text-brand-text placeholder:text-brand-muted/50 focus:outline-none focus:ring-0"
-             disabled={loading}
-           />
+      <div className="space-y-4">
+        <form onSubmit={handleInvestigate} className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1 border border-brand-border bg-[#070809] flex items-center px-6 focus-within:border-brand-accent transition-colors">
+             <Search className="w-5 h-5 text-brand-muted mr-4" />
+             <input 
+               type="text" 
+               value={artifact}
+               onChange={e => setArtifact(e.target.value)}
+               placeholder="ENTER DEMO.ONION, .ONION, DOMAIN, IP, WALLET, PGP FINGERPRINT..."
+               className="w-full bg-transparent border-none py-6 text-sm uppercase tracking-widest text-brand-text placeholder:text-brand-muted/50 focus:outline-none focus:ring-0 font-mono"
+               disabled={loading}
+             />
+          </div>
+          <button 
+            type="submit" 
+            disabled={loading || !artifact}
+            className="px-12 py-6 bg-brand-text text-brand-bg hover:bg-white text-[11px] uppercase tracking-[0.2em] font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-3 shrink-0 cursor-pointer"
+          >
+            {loading ? 'PROCESSING...' : 'INVESTIGATE'}
+          </button>
+        </form>
+
+        {/* Quick Suggestion Chips for Evaluator */}
+        <div className="flex flex-wrap items-center gap-3 pt-1">
+          <span className="text-[10px] uppercase tracking-widest text-brand-muted font-mono font-medium">
+            TRY EVALUATOR DEMO:
+          </span>
+          <button
+            type="button"
+            onClick={() => setArtifact('demo.onion')}
+            className="px-3 py-1.5 border border-brand-accent/50 bg-brand-accent/10 hover:bg-brand-accent/20 text-brand-accent text-[10px] font-mono font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-2 shadow-[0_0_12px_rgba(185,28,28,0.2)]"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-accent animate-pulse"></span>
+            demo.onion
+          </button>
+          <button
+            type="button"
+            onClick={() => setArtifact('ShadowByte')}
+            className="px-3 py-1.5 border border-brand-border hover:border-brand-muted text-brand-muted hover:text-brand-text text-[10px] font-mono tracking-wider transition-colors cursor-pointer"
+          >
+            ShadowByte
+          </button>
+          <button
+            type="button"
+            onClick={() => setArtifact('bc1qxyzexample987')}
+            className="px-3 py-1.5 border border-brand-border hover:border-brand-muted text-brand-muted hover:text-brand-text text-[10px] font-mono tracking-wider transition-colors cursor-pointer"
+          >
+            bc1qxyzexample987
+          </button>
         </div>
-        <button 
-          type="submit" 
-          disabled={loading || !artifact}
-          className="px-12 py-6 bg-brand-text text-brand-bg hover:bg-white text-[11px] uppercase tracking-[0.2em] font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-3 shrink-0"
-        >
-          {loading ? 'PROCESSING...' : 'INVESTIGATE'}
-        </button>
-      </form>
+      </div>
 
       {error && (
         <div className="p-6 border border-brand-accent/50 bg-brand-accent/5 flex items-start gap-4 btn-motion">

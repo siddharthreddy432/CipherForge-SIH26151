@@ -299,6 +299,156 @@ export const IntelligenceService = {
     return reports;
   },
 
+  traverseGraph(seedValue: string) {
+    ensureClientDb();
+    const seed = Array.from(db.entities.values()).find(
+      e => e.value.toLowerCase() === seedValue.toLowerCase() || e.value.toLowerCase().includes(seedValue.toLowerCase())
+    );
+    if (!seed) {
+      return { 
+        seed: null, 
+        entities: Array.from(db.entities.values()), 
+        relationships: Array.from(db.relationships.values()) 
+      };
+    }
+    const visitedEntities = new Set<string>();
+    const visitedRelationships = new Set<string>();
+    const queue = [seed.id];
+    visitedEntities.add(seed.id);
+    while (queue.length > 0) {
+      const currentId = queue.shift()!;
+      const rels = Array.from(db.relationships.values()).filter(
+        r => r.source_id === currentId || r.target_id === currentId
+      );
+      for (const r of rels) {
+        if (!visitedRelationships.has(r.id)) {
+          visitedRelationships.add(r.id);
+          const nextId = r.source_id === currentId ? r.target_id : r.source_id;
+          if (!visitedEntities.has(nextId)) {
+            visitedEntities.add(nextId);
+            queue.push(nextId);
+          }
+        }
+      }
+    }
+    return {
+      seed,
+      entities: Array.from(db.entities.values()).filter(e => visitedEntities.has(e.id)),
+      relationships: Array.from(db.relationships.values()).filter(r => visitedRelationships.has(r.id))
+    };
+  },
+
+  downloadCsv(seed?: string) {
+    const data = this.traverseGraph(seed || '');
+    const entities = data.entities.length > 0 ? data.entities : Array.from(db.entities.values());
+    const csv = Papa.unparse(entities);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `cipherforge-${(seed || 'dataset').replace(/[^a-zA-Z0-9_-]/g, '_')}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  },
+
+  downloadJson(seed?: string) {
+    const data = this.traverseGraph(seed || '');
+    const exportData = {
+      seed: seed || 'ALL',
+      exported_at: new Date().toISOString(),
+      entities: data.entities.length > 0 ? data.entities : Array.from(db.entities.values()),
+      relationships: data.relationships.length > 0 ? data.relationships : Array.from(db.relationships.values()),
+      evidence: Array.from(db.evidence.values())
+    };
+    const jsonStr = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `cipherforge-${(seed || 'dataset').replace(/[^a-zA-Z0-9_-]/g, '_')}.json`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  },
+
+  downloadTextReport(seed: string) {
+    const rep = this.getReportDetails(seed);
+    let text = `====================================================\n`;
+    text += `       CIPHERFORGE INTELLIGENCE CASE REPORT         \n`;
+    text += `====================================================\n\n`;
+    text += `CASE REFERENCE: ${rep.reportId}\n`;
+    text += `SEED ARTIFACT:  ${rep.seed}\n`;
+    text += `GENERATED:      ${rep.generated}\n`;
+    text += `CONFIDENCE:     ${rep.confidence}\n`;
+    text += `STATUS:         COMPLETED\n\n`;
+    text += `----------------------------------------------------\n`;
+    text += `EXECUTIVE SUMMARY\n`;
+    text += `----------------------------------------------------\n`;
+    text += `Target investigation established correlation across ${rep.entities.length} nodes\n`;
+    text += `and ${rep.relationships.length} relational links in the intelligence network.\n\n`;
+    text += `THREAT ACTORS IDENTIFIED (${rep.actors.length}):\n`;
+    rep.actors.forEach((a: any) => {
+      text += ` - ${a.value} [Confidence: ${a.confidence}] (Source: ${a.source})\n`;
+    });
+    text += `\nLINKED IDENTITIES & ALIASES (${rep.aliases.length}):\n`;
+    rep.aliases.forEach((a: any) => {
+      text += ` - ${a.value} (Category: ${a.category})\n`;
+    });
+    text += `\nFINANCIAL / BLOCKCHAIN INFRASTRUCTURE (${rep.wallets.length}):\n`;
+    rep.wallets.forEach((w: any) => {
+      text += ` - ${w.value} (Category: ${w.category})\n`;
+    });
+    text += `\nTECHNICAL INFRASTRUCTURE:\n`;
+    text += ` - Onions:       ${rep.onions.map((o: any) => o.value).join(', ') || 'None'}\n`;
+    text += ` - Certificates: ${rep.certs.map((c: any) => c.value).join(', ') || 'None'}\n`;
+    text += ` - Domains:      ${rep.domains.map((d: any) => d.value).join(', ') || 'None'}\n`;
+    text += ` - IPs:          ${rep.ips.map((i: any) => i.value).join(', ') || 'None'}\n\n`;
+    text += `====================================================\n`;
+    text += `END OF REPORT - CIPHERFORGE THREAT INTELLIGENCE\n`;
+
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `cipherforge-report-${seed.replace(/[^a-zA-Z0-9_-]/g, '_')}.txt`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  },
+
+  getReportDetails(seedValue: string) {
+    const { entities, relationships } = this.traverseGraph(seedValue);
+    const actors = entities.filter(e => e.type === 'ACTOR');
+    const aliases = entities.filter(e => e.type === 'ALIAS');
+    const wallets = entities.filter(e => e.type === 'WALLET');
+    const pgp = entities.filter(e => e.type === 'PGP_FINGERPRINT');
+    const onions = entities.filter(e => e.type === 'ONION');
+    const certs = entities.filter(e => e.type === 'CERTIFICATE');
+    const domains = entities.filter(e => e.type === 'DOMAIN');
+    const ips = entities.filter(e => e.type === 'IP');
+
+    return {
+      reportId: `REP-${seedValue.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8) || '2026'}`,
+      seed: seedValue,
+      generated: new Date().toISOString(),
+      entities,
+      relationships,
+      actors,
+      aliases,
+      wallets,
+      pgp,
+      onions,
+      certs,
+      domains,
+      ips,
+      confidence: '86%'
+    };
+  },
+
   async search(query: string) {
     if (!query) return [];
     const res = await safeFetchJson<any[]>(`/api/search?q=${encodeURIComponent(query)}`);

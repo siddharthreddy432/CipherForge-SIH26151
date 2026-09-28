@@ -68,6 +68,22 @@ export default function NetworkGraph() {
         confidence: r.confidence,
         raw: r
       }));
+
+      // Group parallel links between identical node pairs to prevent label overlap
+      const linkGroups: { [pairKey: string]: any[] } = {};
+      links.forEach((l: any) => {
+        const pairKey = [String(l.source), String(l.target)].sort().join('___');
+        if (!linkGroups[pairKey]) linkGroups[pairKey] = [];
+        linkGroups[pairKey].push(l);
+      });
+
+      links.forEach((l: any) => {
+        const pairKey = [String(l.source), String(l.target)].sort().join('___');
+        const group = linkGroups[pairKey];
+        l.totalLinks = group.length;
+        l.linkIndex = group.indexOf(l);
+      });
+
       setData({ nodes, links });
   }, [allData, graphFilter, seed]);
 
@@ -101,14 +117,15 @@ export default function NetworkGraph() {
       .force("center", d3.forceCenter(0, 0))
       .force("collide", d3.forceCollide().radius(60));
 
-    // Links
+    // Links: Rendered as paths to support curved separation for parallel multi-edges
     const link = g.append("g").attr("class", "links")
-      .attr("stroke", "#1f1f1f")
-      .attr("stroke-opacity", 0.6)
-      .selectAll("line")
+      .selectAll("path")
       .data(data.links)
-      .join("line").attr("class", "link-line")
-      .attr("stroke-width", (d: any) => d.confidence === 'HIGH' ? 2 : 1)
+      .join("path").attr("class", "link-line")
+      .attr("fill", "none")
+      .attr("stroke", "#2b2f38")
+      .attr("stroke-opacity", 0.6)
+      .attr("stroke-width", (d: any) => d.confidence === 'HIGH' ? 1.8 : 1)
       .attr("stroke-dasharray", (d: any) => d.confidence === 'HIGH' ? '0' : '4,4')
       .style("cursor", "pointer")
       .on("click", (event, d) => {
@@ -116,16 +133,22 @@ export default function NetworkGraph() {
          setSelectedNode(null);
       });
 
-    // Link labels
+    // Link labels: Rendered with distinct offsets and protective halos to eliminate collisions
     const linkLabel = g.append("g")
       .selectAll("text")
       .data(data.links)
       .join("text")
       .attr("font-size", 8)
       .attr("font-family", "Inter")
-      .attr("letter-spacing", "0.2em")
-      .attr("fill", "#666666")
+      .attr("font-weight", "500")
+      .attr("letter-spacing", "0.15em")
+      .attr("fill", "#8A8F96")
       .attr("text-anchor", "middle")
+      .attr("dominant-baseline", "central")
+      .style("paint-order", "stroke fill")
+      .style("stroke", "#05070a")
+      .style("stroke-width", "4px")
+      .style("stroke-linejoin", "round")
       .text((d: any) => d.type.replace(/_/g, ' '));
 
     const getColor = (type: string) => {
@@ -199,15 +222,65 @@ export default function NetworkGraph() {
       .text((d: any) => d.value.length > 20 ? d.value.substring(0, 17) + '...' : d.value);
 
     simulation.on("tick", () => {
-      link
-        .attr("x1", (d: any) => d.source.x)
-        .attr("y1", (d: any) => d.source.y)
-        .attr("x2", (d: any) => d.target.x)
-        .attr("y2", (d: any) => d.target.y);
+      link.attr("d", (d: any) => {
+        if (!d.source.x || !d.target.x) return "";
+        if (!d.totalLinks || d.totalLinks <= 1) {
+          return `M ${d.source.x} ${d.source.y} L ${d.target.x} ${d.target.y}`;
+        }
+        
+        // Multi-edge quadratic curve separation
+        const dx = d.target.x - d.source.x;
+        const dy = d.target.y - d.source.y;
+        const dist = Math.hypot(dx, dy) || 1;
+        const nx = -dy / dist;
+        const ny = dx / dist;
+        
+        const isForward = String(d.source.id) < String(d.target.id);
+        const sign = isForward ? 1 : -1;
+        const offsetCoeff = (d.linkIndex - (d.totalLinks - 1) / 2);
+        const curvature = offsetCoeff * 55 * sign;
+        
+        const midX = (d.source.x + d.target.x) / 2 + nx * curvature;
+        const midY = (d.source.y + d.target.y) / 2 + ny * curvature;
+        
+        return `M ${d.source.x} ${d.source.y} Q ${midX} ${midY} ${d.target.x} ${d.target.y}`;
+      });
         
       linkLabel
-        .attr("x", (d: any) => (d.source.x + d.target.x) / 2)
-        .attr("y", (d: any) => (d.source.y + d.target.y) / 2 - 5);
+        .attr("x", (d: any) => {
+          if (!d.source.x || !d.target.x) return 0;
+          const dx = d.target.x - d.source.x;
+          const dy = d.target.y - d.source.y;
+          const dist = Math.hypot(dx, dy) || 1;
+          const nx = -dy / dist;
+          if (!d.totalLinks || d.totalLinks <= 1) {
+            return (d.source.x + d.target.x) / 2 + nx * 9;
+          }
+          const isForward = String(d.source.id) < String(d.target.id);
+          const sign = isForward ? 1 : -1;
+          const offsetCoeff = (d.linkIndex - (d.totalLinks - 1) / 2);
+          const curvature = offsetCoeff * 55 * sign;
+          const midX = (d.source.x + d.target.x) / 2 + nx * curvature;
+          // Apex of quadratic bezier at t = 0.5
+          return 0.25 * d.source.x + 0.5 * midX + 0.25 * d.target.x;
+        })
+        .attr("y", (d: any) => {
+          if (!d.source.y || !d.target.y) return 0;
+          const dx = d.target.x - d.source.x;
+          const dy = d.target.y - d.source.y;
+          const dist = Math.hypot(dx, dy) || 1;
+          const ny = dx / dist;
+          if (!d.totalLinks || d.totalLinks <= 1) {
+            return (d.source.y + d.target.y) / 2 + ny * 9;
+          }
+          const isForward = String(d.source.id) < String(d.target.id);
+          const sign = isForward ? 1 : -1;
+          const offsetCoeff = (d.linkIndex - (d.totalLinks - 1) / 2);
+          const curvature = offsetCoeff * 55 * sign;
+          const midY = (d.source.y + d.target.y) / 2 + ny * curvature;
+          // Apex of quadratic bezier at t = 0.5
+          return 0.25 * d.source.y + 0.5 * midY + 0.25 * d.target.y;
+        });
 
       node
         .attr("transform", (d: any) => `translate(${d.x},${d.y})`);
