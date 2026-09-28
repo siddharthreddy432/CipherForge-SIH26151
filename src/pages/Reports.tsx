@@ -205,8 +205,8 @@ export default function Reports() {
                     IDENTIFIED THREAT ACTORS
                   </h3>
                   <div className="space-y-2">
-                    {reportDetails.actors.map((actor: any) => (
-                      <div key={actor.id} className="border border-brand-border p-4 bg-[#07090D] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    {reportDetails.actors.map((actor: any, idx: number) => (
+                      <div key={`rep-act-${actor.id}-${idx}`} className="border border-brand-border p-4 bg-[#07090D] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
                           <p className="text-base font-heading font-bold text-brand-text">{actor.value}</p>
                           <p className="text-[10px] uppercase tracking-widest text-brand-muted mt-1 font-mono">
@@ -238,8 +238,8 @@ export default function Reports() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-brand-border/40">
-                      {reportDetails.entities.slice(0, 10).map((e: any) => (
-                        <tr key={e.id} className="hover:bg-brand-border/20 transition-colors">
+                      {reportDetails.entities.slice(0, 10).map((e: any, idx: number) => (
+                        <tr key={`rep-e-${e.id}-${idx}`} className="hover:bg-brand-border/20 transition-colors">
                           <td className="p-3 text-brand-accent font-semibold">{e.type}</td>
                           <td className="p-3 text-brand-text break-all">{e.value}</td>
                           <td className="p-3 text-brand-muted truncate max-w-[150px]">{e.source}</td>

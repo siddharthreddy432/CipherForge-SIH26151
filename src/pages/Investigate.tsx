@@ -231,9 +231,9 @@ export default function Investigate() {
                      CORRELATED IDENTIFIERS
                  </h3>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                   {result.entities.map((entity: any) => (
+                   {Array.from(new Map(result.entities.map((e: any) => [e.id, e])).values()).map((entity: any, idx: number) => (
                      <div 
-                        key={entity.id} 
+                        key={`ent-${entity.id}-${idx}`} 
                         onClick={() => {
                           if (entity.type === 'WALLET' || entity.type === 'TRANSACTION') navigate('/blockchain');
                           else if (entity.type === 'ONION' || entity.type === 'DOMAIN' || entity.type === 'IP' || entity.type === 'CERTIFICATE') navigate('/infrastructure');
@@ -334,12 +334,14 @@ export default function Investigate() {
                  </h3>
                  <div className="space-y-0">
                     {result.timeline.map((t: any, idx: number) => (
-                      <div key={t.id} className={`flex group ${shouldReduceMotion ? '' : 'animate-fade-up'}`} style={{ animationDelay: shouldReduceMotion ? '0ms' : `${idx * 50}ms` }}>
+                      <div key={`tl-${t.id}-${idx}`} className={`flex group ${shouldReduceMotion ? '' : 'animate-fade-up'}`} style={{ animationDelay: shouldReduceMotion ? '0ms' : `${idx * 50}ms` }}>
                         <div className="w-24 md:w-32 shrink-0 py-6 text-[10px] text-brand-muted font-mono tracking-widest">
                           {new Date(t.timestamp).toLocaleDateString('en-GB').replace(/\//g, '.')}
                         </div>
-                        <div className="relative flex-1 border-l border-brand-border pl-6 md:pl-8 py-6 group-last:pb-0">
-                           <div className="absolute w-2 h-2 bg-[#070809] border border-brand-border rounded-none -left-[4.5px] top-[1.7rem] group-hover:border-brand-accent transition-colors"></div>
+                        <div className="relative flex-1 border-l-2 border-brand-accent/40 pl-6 md:pl-8 py-6 group-last:pb-0">
+                           <div className="absolute w-3.5 h-3.5 rounded-full bg-[#05070a] border-2 border-brand-accent -left-[8px] top-[1.65rem] group-hover:scale-125 transition-transform flex items-center justify-center shadow-[0_0_8px_rgba(185,28,28,0.5)]">
+                             <div className="w-1.5 h-1.5 rounded-full bg-brand-accent"></div>
+                           </div>
                            <p className="text-brand-text font-heading text-lg md:text-xl mb-1">{t.description}</p>
                            <p className="text-[11px] tracking-widest text-brand-muted uppercase font-mono break-all">{t.value}</p>
                            <p className="text-[9px] tracking-widest text-brand-muted uppercase mt-3 inline-block font-mono border-b border-brand-border/50 pb-1">{t.source}</p>

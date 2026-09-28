@@ -146,15 +146,25 @@ export default function PersonaAnalysis() {
             <div className="space-y-8">
                <div className="p-8 border border-brand-border bg-[#0A0C0E]/80 backdrop-blur-md space-y-6">
                  <h3 className="text-[11px] uppercase tracking-[0.2em] font-semibold text-brand-text border-b border-brand-border pb-4">PERSONA EVIDENCE</h3>
-                 <div className="space-y-4">
+                 <div className="space-y-6">
                     <div>
-                       <p className="text-[9px] uppercase tracking-widest text-brand-muted mb-1">STYLOMETRIC SIMILARITY</p>
-                       <p className="text-2xl font-heading font-semibold text-brand-text"><NumberCounter value={82} suffix="%" /></p>
+                       <div className="flex justify-between items-baseline mb-1">
+                         <p className="text-[9px] uppercase tracking-widest text-brand-muted">STYLOMETRIC SIMILARITY</p>
+                         <p className="text-xl font-heading font-semibold text-brand-accent"><NumberCounter value={82} suffix="%" /></p>
+                       </div>
+                       <div className="w-full bg-[#05070a] border border-brand-border h-2 rounded-full overflow-hidden my-2">
+                         <div className="bg-brand-accent h-full rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(185,28,28,0.5)]" style={{ width: '82%' }}></div>
+                       </div>
                        <p className="text-[10px] text-brand-muted font-light mt-1">Potential stylistic similarity observed in vocabulary patterns. Does not definitively prove identity.</p>
                     </div>
                     <div className="pt-4 border-t border-brand-border/30">
-                       <p className="text-[9px] uppercase tracking-widest text-brand-muted mb-1">BEHAVIOURAL SIMILARITY</p>
-                       <p className="text-2xl font-heading font-semibold text-brand-text"><NumberCounter value={76} suffix="%" /></p>
+                       <div className="flex justify-between items-baseline mb-1">
+                         <p className="text-[9px] uppercase tracking-widest text-brand-muted">BEHAVIOURAL SIMILARITY</p>
+                         <p className="text-xl font-heading font-semibold text-brand-glow"><NumberCounter value={76} suffix="%" /></p>
+                       </div>
+                       <div className="w-full bg-[#05070a] border border-brand-border h-2 rounded-full overflow-hidden my-2">
+                         <div className="bg-brand-glow h-full rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(234,88,12,0.4)]" style={{ width: '76%' }}></div>
+                       </div>
                        <p className="text-[10px] text-brand-muted font-light mt-1">Overlapping activity timing and category preferences.</p>
                     </div>
                  </div>

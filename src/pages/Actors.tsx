@@ -126,8 +126,8 @@ export default function Actors() {
               <h3 className="text-[11px] uppercase tracking-[0.2em] font-semibold text-brand-muted mb-6 border-b border-brand-border pb-4">KNOWN ALIASES</h3>
               <div className="space-y-4">
                 {aliases.length === 0 && <p className="text-xs text-brand-muted font-mono">No aliases recorded.</p>}
-                {aliases.map((a: any) => (
-                  <div key={a.entity.id} className="flex justify-between items-center p-4 bg-brand-border/10 border border-brand-border">
+                {aliases.map((a: any, idx: number) => (
+                  <div key={a.relationship?.id ? `alias-${a.entity.id}-${a.relationship.id}` : `alias-${a.entity.id}-${idx}`} className="flex justify-between items-center p-4 bg-brand-border/10 border border-brand-border">
                     <span className="text-lg font-sans text-brand-text">{a.entity.value}</span>
                     <span className="text-[10px] uppercase tracking-widest text-brand-muted">{a.relationship.confidence} CONFIDENCE</span>
                   </div>
@@ -139,8 +139,8 @@ export default function Actors() {
               <h3 className="text-[11px] uppercase tracking-[0.2em] font-semibold text-brand-muted mb-6 border-b border-brand-border pb-4">PGP FINGERPRINTS</h3>
               <div className="space-y-4">
                 {pgps.length === 0 && <p className="text-xs text-brand-muted font-mono">No PGP keys recorded.</p>}
-                {pgps.map((p: any) => (
-                  <div key={p.entity.id} className="p-4 bg-brand-border/10 border border-brand-border space-y-2">
+                {pgps.map((p: any, idx: number) => (
+                  <div key={p.relationship?.id ? `pgp-${p.entity.id}-${p.relationship.id}` : `pgp-${p.entity.id}-${idx}`} className="p-4 bg-brand-border/10 border border-brand-border space-y-2">
                     <span className="text-sm font-mono tracking-widest text-brand-text break-all block">{p.entity.value}</span>
                     <div className="flex justify-between items-center mt-2">
                        <span className="text-[10px] uppercase tracking-widest text-brand-muted">SOURCE: {p.entity.source}</span>
@@ -155,8 +155,8 @@ export default function Actors() {
               <h3 className="text-[11px] uppercase tracking-[0.2em] font-semibold text-brand-glow drop-shadow-[0_0_8px_rgba(234,88,12,0.15)] mb-6 border-b border-brand-border pb-4">BLOCKCHAIN WALLETS</h3>
               <div className="space-y-4">
                 {wallets.length === 0 && <p className="text-xs text-brand-muted font-mono">No wallets recorded.</p>}
-                {wallets.map((w: any) => (
-                  <div key={w.entity.id} className="p-4 bg-brand-border/10 border border-brand-glow/20 space-y-2">
+                {wallets.map((w: any, idx: number) => (
+                  <div key={w.relationship?.id ? `wallet-${w.entity.id}-${w.relationship.id}` : `wallet-${w.entity.id}-${idx}`} className="p-4 bg-brand-border/10 border border-brand-glow/20 space-y-2">
                     <span className="text-sm font-mono tracking-widest text-brand-glow drop-shadow-[0_0_8px_rgba(234,88,12,0.15)] break-all block">{w.entity.value}</span>
                     <div className="flex justify-between items-center mt-2">
                        <span className="text-[10px] uppercase tracking-widest text-brand-muted">SOURCE: {w.entity.source}</span>
@@ -171,8 +171,8 @@ export default function Actors() {
               <h3 className="text-[11px] uppercase tracking-[0.2em] font-semibold text-brand-muted mb-6 border-b border-brand-border pb-4">HIDDEN SERVICES</h3>
               <div className="space-y-4">
                 {hiddenServices.length === 0 && <p className="text-xs text-brand-muted font-mono">No hidden services recorded.</p>}
-                {hiddenServices.map((hs: any) => (
-                  <div key={hs.entity.id} className="flex justify-between items-center p-4 bg-brand-border/10 border border-brand-border">
+                {hiddenServices.map((hs: any, idx: number) => (
+                  <div key={hs.relationship?.id ? `hs-${hs.entity.id}-${hs.relationship.id}` : `hs-${hs.entity.id}-${idx}`} className="flex justify-between items-center p-4 bg-brand-border/10 border border-brand-border">
                     <span className="text-sm font-mono tracking-widest text-brand-text">{hs.entity.value}</span>
                     <span className="text-[10px] uppercase tracking-widest text-brand-muted">{hs.relationship.relationship_type}</span>
                   </div>
@@ -184,8 +184,8 @@ export default function Actors() {
               <h3 className="text-[11px] uppercase tracking-[0.2em] font-semibold text-brand-muted mb-6 border-b border-brand-border pb-4">LINKED ACCOUNTS</h3>
               <div className="space-y-4">
                 {accounts.length === 0 && <p className="text-xs text-brand-muted font-mono">No accounts recorded.</p>}
-                {accounts.map((acc: any) => (
-                  <div key={acc.entity.id} className="flex justify-between items-center p-4 bg-brand-border/10 border border-brand-border">
+                {accounts.map((acc: any, idx: number) => (
+                  <div key={acc.relationship?.id ? `acc-${acc.entity.id}-${acc.relationship.id}` : `acc-${acc.entity.id}-${idx}`} className="flex justify-between items-center p-4 bg-brand-border/10 border border-brand-border">
                     <span className="text-sm font-mono tracking-widest text-brand-text">{acc.entity.value}</span>
                     <span className="text-[10px] uppercase tracking-widest text-brand-muted">{acc.entity.source}</span>
                   </div>
@@ -221,8 +221,8 @@ export default function Actors() {
                </h3>
                <div className="space-y-4">
                  {evidence.length === 0 && <p className="text-xs text-brand-muted font-mono">No evidence records found.</p>}
-                 {evidence.map((ev: any) => (
-                   <div key={ev.id} className="p-4 border border-brand-border bg-[#0A0C0E]/80 backdrop-blur-md space-y-4">
+                 {evidence.map((ev: any, idx: number) => (
+                   <div key={`ev-${ev.id}-${idx}`} className="p-4 border border-brand-border bg-[#0A0C0E]/80 backdrop-blur-md space-y-4">
                      <div className="flex items-center gap-2">
                        <LinkIcon className="w-3 h-3 text-brand-muted" />
                        <span className="text-[10px] font-mono text-brand-muted">{ev.hash.substring(0, 16)}...</span>
@@ -236,19 +236,38 @@ export default function Actors() {
 
             <section className="space-y-6">
                <h3 className="text-[11px] uppercase tracking-[0.2em] font-semibold text-brand-muted border-b border-brand-border pb-4">OBSERVATION TIMELINE</h3>
-               <div className="space-y-6 relative before:absolute before:inset-0 before:ml-2 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-brand-border before:to-transparent">
-                 {related.sort((a: any, b: any) => new Date(a.entity.first_seen).getTime() - new Date(b.entity.first_seen).getTime()).slice(0, 5).map((r: any, idx: number) => (
-                   <div key={idx} className={`relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active ${shouldReduceMotion ? '' : 'animate-fade-up'}`} style={{ animationDelay: shouldReduceMotion ? '0ms' : `${idx * 50}ms` }}>
-                      <div className="flex items-center justify-center w-4 h-4 rounded-full border border-brand-border bg-[#070809] group-[.is-active]:border-brand-text text-brand-muted group-[.is-active]:text-brand-text shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2"></div>
-                      <div className="w-[calc(100%-2.5rem)] md:w-[calc(50%-1.5rem)] p-4 rounded border border-brand-border bg-[#070809]/50">
-                        <div className="flex items-center justify-between space-x-2 mb-1">
-                          <div className="font-bold text-brand-text text-[10px] uppercase tracking-widest">{r.entity.type}</div>
-                          <time className="font-mono text-brand-muted text-[10px]">{new Date(r.entity.first_seen).toLocaleDateString()}</time>
+               <div className="relative border-l-2 border-brand-accent/40 ml-3 pl-6 space-y-6">
+                 {related.length === 0 && (
+                   <p className="text-xs text-brand-muted font-mono">No observation events recorded.</p>
+                 )}
+                 {related
+                   .sort((a: any, b: any) => new Date(a.entity.first_seen).getTime() - new Date(b.entity.first_seen).getTime())
+                   .slice(0, 6)
+                   .map((r: any, idx: number) => (
+                     <div key={`act-tl-${idx}`} className={`relative group ${shouldReduceMotion ? '' : 'animate-fade-up'}`} style={{ animationDelay: shouldReduceMotion ? '0ms' : `${idx * 50}ms` }}>
+                        {/* Crisp visible timeline node dot */}
+                        <div className="absolute -left-[31.5px] top-3.5 w-3.5 h-3.5 rounded-full bg-[#05070a] border-2 border-brand-accent flex items-center justify-center group-hover:scale-125 transition-transform shadow-[0_0_10px_rgba(185,28,28,0.5)] z-10">
+                          <div className="w-1.5 h-1.5 rounded-full bg-brand-accent"></div>
                         </div>
-                        <div className="text-brand-muted text-xs break-all">{r.entity.value}</div>
-                      </div>
-                   </div>
-                 ))}
+
+                        {/* Event Card */}
+                        <div className="p-4 border border-brand-border bg-[#0A0C0E]/90 backdrop-blur-md space-y-2 hover:border-brand-accent/50 transition-colors">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-mono font-bold text-brand-text text-[10px] uppercase tracking-widest px-2 py-0.5 border border-brand-border bg-[#070809]">
+                              {r.entity.type.replace(/_/g, ' ')}
+                            </span>
+                            <time className="font-mono text-brand-accent text-[11px] font-semibold">
+                              {new Date(r.entity.first_seen).toLocaleDateString('en-GB').replace(/\//g, '.')}
+                            </time>
+                          </div>
+                          <p className="text-brand-text font-mono text-xs break-all">{r.entity.value}</p>
+                          <div className="flex justify-between items-center pt-2 border-t border-brand-border/40 text-[9px] text-brand-muted uppercase font-mono">
+                            <span>REL: {r.relationship.relationship_type.replace(/_/g, ' ')}</span>
+                            <span className="text-brand-accent font-semibold">{r.relationship.confidence}</span>
+                          </div>
+                        </div>
+                     </div>
+                   ))}
                </div>
             </section>
           </div>

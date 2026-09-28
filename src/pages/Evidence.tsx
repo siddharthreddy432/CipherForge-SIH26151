@@ -107,8 +107,11 @@ export default function Evidence() {
                    <p className="text-[11px] tracking-wider text-brand-text uppercase">{new Date(item.timestamp).toLocaleString('en-GB')}</p>
                 </div>
                 <div className="col-span-2 md:col-span-2">
-                   <p className="text-[10px] uppercase tracking-widest text-brand-muted mb-1">CHAIN HASH</p>
-                   <p className="text-[10px] font-mono tracking-widest text-brand-muted break-all">{item.hash}</p>
+                   <p className="text-[10px] uppercase tracking-widest text-brand-muted mb-1">CHAIN HASH (IMMUTABLE)</p>
+                   <div className="p-2 border border-brand-border bg-[#07090D] flex items-center gap-2">
+                     <span className="w-1.5 h-1.5 rounded-full bg-brand-accent animate-pulse shrink-0"></span>
+                     <p className="text-[10px] font-mono tracking-widest text-brand-text break-all select-all">{item.hash}</p>
+                   </div>
                 </div>
               </div>
             </div>

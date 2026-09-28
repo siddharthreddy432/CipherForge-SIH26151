@@ -112,20 +112,30 @@ export default function Dashboard() {
              <Activity className="w-4 h-4" /> ACTIVE INVESTIGATION
            </h3>
            <div className="border border-brand-border p-8 bg-[#0A0C0E]/80 backdrop-blur-md space-y-6">
-              <div className="flex items-center gap-4">
-                 <p className="text-[10px] uppercase tracking-widest text-brand-muted w-24">SEED</p>
-                 <p className="text-lg font-mono text-brand-text">demo.onion</p>
-              </div>
-              <div className="pl-28 flex flex-col gap-2">
-                 <ArrowRight className="w-4 h-4 text-brand-muted rotate-90" />
-                 <p className="text-lg font-mono text-brand-accent drop-shadow-[0_0_8px_rgba(185,28,28,0.2)]">ShadowByte</p>
-                 <ArrowRight className="w-4 h-4 text-brand-muted rotate-90" />
-                 <p className="text-lg font-mono text-brand-text">0x3A2...9F1</p>
-                 <ArrowRight className="w-4 h-4 text-brand-muted rotate-90" />
-                 <p className="text-lg font-mono text-brand-glow drop-shadow-[0_0_8px_rgba(234,88,12,0.15)]">Shadow_Byte</p>
+              <div className="relative border-l-2 border-brand-accent/40 ml-2 pl-6 space-y-5">
+                 <div className="relative">
+                    <div className="absolute -left-[31.5px] top-1.5 w-3 h-3 rounded-full bg-[#05070a] border-2 border-brand-text"></div>
+                    <p className="text-[9px] uppercase tracking-widest text-brand-muted">SEED ARTIFACT</p>
+                    <p className="text-base font-mono text-brand-text font-bold">demo.onion</p>
+                 </div>
+                 <div className="relative">
+                    <div className="absolute -left-[31.5px] top-1.5 w-3 h-3 rounded-full bg-[#05070a] border-2 border-brand-accent"></div>
+                    <p className="text-[9px] uppercase tracking-widest text-brand-muted">RESOLVED ACTOR</p>
+                    <p className="text-base font-mono text-brand-accent font-bold">ShadowByte</p>
+                 </div>
+                 <div className="relative">
+                    <div className="absolute -left-[31.5px] top-1.5 w-3 h-3 rounded-full bg-[#05070a] border-2 border-brand-glow"></div>
+                    <p className="text-[9px] uppercase tracking-widest text-brand-muted">CORRELATED WALLET</p>
+                    <p className="text-base font-mono text-brand-text">0x3A2...9F1</p>
+                 </div>
+                 <div className="relative">
+                    <div className="absolute -left-[31.5px] top-1.5 w-3 h-3 rounded-full bg-[#05070a] border-2 border-brand-glow"></div>
+                    <p className="text-[9px] uppercase tracking-widest text-brand-muted">LINKED PERSONA</p>
+                    <p className="text-base font-mono text-brand-glow font-bold">Shadow_Byte</p>
+                 </div>
               </div>
               <div className="pt-6 border-t border-brand-border/50">
-                <button onClick={() => navigate('/investigate', { state: { artifact: 'demo.onion' } })} className="text-[10px] uppercase tracking-widest font-semibold text-brand-text hover:text-brand-accent drop-shadow-[0_0_8px_rgba(185,28,28,0.2)] transition-colors">
+                <button onClick={() => navigate('/investigate', { state: { artifact: 'demo.onion' } })} className="text-[10px] uppercase tracking-widest font-semibold text-brand-text hover:text-brand-accent drop-shadow-[0_0_8px_rgba(185,28,28,0.2)] transition-colors cursor-pointer">
                   RESUME INVESTIGATION →
                 </button>
               </div>
